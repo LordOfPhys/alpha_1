@@ -8,12 +8,15 @@ from django.dispatch import receiver
 from rest_framework.authtoken.models import Token
 
 class Room(models.Model):
-    room = models.CharField(max_length=100, default='')
+    room = models.CharField(max_length=100, default='', unique=True)
     creator = models.OneToOneField(User, unique=True, verbose_name='room_creator', related_name='room_creator', on_delete=models.CASCADE, default='')
     users = models.ManyToManyField(User, blank=True)
     x_center = models.CharField(max_length=100, default='0')
     y_center = models.CharField(max_length=100, default='0')
     status = models.CharField(max_length=100, default='0')
+
+    def get_room(self):
+        return self.room
 
     def get_x_center(self):
         return self.x_center
@@ -62,8 +65,8 @@ def create_auth_token(sender, instance=None, created=False, **kwargs):
 class UserProfile(models.Model):
     user = models.OneToOneField(User, unique=True, verbose_name='user_profile', related_name='user_profile', on_delete=models.CASCADE)
     room = models.ForeignKey(Room, verbose_name='user_room', related_name='user_room', on_delete=models.CASCADE, default='')
-    target = models.OneToOneField(User, on_delete=models.CASCADE, related_name='target', default='')
-    killer = models.OneToOneField(User, on_delete=models.CASCADE, related_name='killer', default='')
+    target = models.ForeignKey(User, verbose_name='target', on_delete=models.CASCADE, related_name='target', default='')
+    killer = models.ForeignKey(User, verbose_name='killer', on_delete=models.CASCADE, related_name='killer', default='')
     x = models.CharField(max_length=100, default='0')
     y = models.CharField(max_length=100, default='0')
     status = models.CharField(max_length=100, default='0')
